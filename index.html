@@ -26,8 +26,8 @@ input:focus{border-color:#1a56db;background:#fff;box-shadow:0 0 0 3px rgba(26,86
 .pc-btn{flex:1;padding:12px 0;border-radius:11px;font-size:15px;font-weight:600;border:1.5px solid #e0e0e0;background:#fff;cursor:pointer;color:#666;font-family:inherit;transition:all 0.12s}
 .pc-btn.sel{background:#1a56db;color:#fff;border-color:#1a56db}
 .hint-box{background:#eef3ff;border-radius:11px;padding:13px 15px;font-size:13px;color:#3d5db5;line-height:1.65}
-.url-set-box{background:#f0faf0;border-radius:11px;padding:13px 15px;font-size:13px;color:#2e7d32;line-height:1.5;border:1px solid #c8e6c9;display:flex;align-items:center;gap:8px}
-.url-unset-box{background:#fff8e1;border-radius:11px;padding:13px 15px;font-size:13px;color:#bf6000;line-height:1.5;border:1px solid #ffe082}
+.status-ok{background:#f0faf0;border-radius:11px;padding:12px 15px;font-size:13px;color:#2e7d32;border:1px solid #c8e6c9}
+.status-no{background:#fff8e1;border-radius:11px;padding:12px 15px;font-size:13px;color:#bf6000;border:1px solid #ffe082}
 .cam-header{padding:11px 16px;display:flex;justify-content:space-between;align-items:center;background:#111;flex-shrink:0}
 .cam-wrap{position:relative;flex:1;background:#000;overflow:hidden;min-height:320px}
 video{width:100%;height:100%;object-fit:cover;display:block}
@@ -74,9 +74,9 @@ video{width:100%;height:100%;object-fit:cover;display:block}
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:100;display:flex;align-items:flex-end;justify-content:center}
 .modal-sheet{background:#fff;border-radius:20px 20px 0 0;padding:24px 20px 44px;width:100%;max-width:430px;max-height:88vh;overflow-y:auto}
 .modal-handle{width:40px;height:4px;background:#ddd;border-radius:2px;margin:0 auto 20px}
-.step{display:flex;gap:12px;align-items:flex-start}
-.step-num{width:24px;height:24px;border-radius:50%;background:#1a56db;color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
-.code-box{background:#f5f5f0;border-radius:8px;padding:10px 12px;font-size:12px;font-family:monospace;color:#333;word-break:break-all;margin:6px 0;border:1px solid #e8e8e0}
+.step{display:flex;gap:12px;align-items:flex-start;padding-bottom:18px;border-bottom:1px solid #f0f0f0}
+.step:last-child{border-bottom:none;padding-bottom:0}
+.step-num{width:24px;height:24px;min-width:24px;border-radius:50%;background:#1a56db;color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;margin-top:1px}
 </style>
 </head>
 <body>
@@ -107,17 +107,10 @@ video{width:100%;height:100%;object-fit:cover;display:block}
           <button class="pc-btn" data-n="3" onclick="setPc(3)">3장</button>
         </div>
       </div>
-
-      <!-- Drive 연동 상태 표시 -->
       <div id="drive-status"></div>
-
-      <div class="hint-box">
-        💡 가이드 프레임 안에 배움쪽지의 <strong>노란 형광펜 표시 영역</strong>을 맞춰 찍어주세요.
-      </div>
+      <div class="hint-box">💡 가이드 프레임 안에 배움쪽지의 <strong>노란 형광펜 표시 영역</strong>을 맞춰 찍어주세요.</div>
       <div style="margin-top:auto;display:flex;flex-direction:column;gap:8px">
-        <button class="btn btn-primary" id="start-btn" onclick="startFlow()" disabled>
-          📸 촬영 시작하기
-        </button>
+        <button class="btn btn-primary" id="start-btn" onclick="startFlow()" disabled>📸 촬영 시작하기</button>
         <button class="btn btn-ghost" onclick="showUrlModal()">⚙️ Google Drive 연동 설정</button>
         <p id="ready-hint" style="font-size:12px;color:#bbb;text-align:center">날짜와 번호를 입력하면 시작할 수 있어요</p>
       </div>
@@ -188,7 +181,7 @@ video{width:100%;height:100%;object-fit:cover;display:block}
       <p style="font-size:13px;color:#888" id="gallery-meta"></p>
       <div class="thumb-grid" id="gallery-grid"></div>
       <button class="btn btn-green" onclick="startUpload()">☁️ Google Drive에 저장</button>
-      <button class="btn btn-outline" onclick="downloadAll()">💾 다운로드 (Drive 미설정 시)</button>
+      <button class="btn btn-outline" onclick="downloadAll()">💾 다운로드 (폰에 저장)</button>
       <button class="btn btn-ghost" onclick="cancelFlow()">처음으로</button>
     </div>
   </div>
@@ -198,6 +191,7 @@ video{width:100%;height:100%;object-fit:cover;display:block}
     <div class="center-body">
       <div class="big-icon">☁️</div>
       <div class="big-title">Drive에 저장 중...</div>
+      <p style="font-size:13px;color:#aaa">잠시 기다려주세요</p>
       <div class="log-box" id="upload-log"></div>
     </div>
   </div>
@@ -206,12 +200,13 @@ video{width:100%;height:100%;object-fit:cover;display:block}
   <div class="screen" id="screen-done">
     <div class="center-body">
       <div class="big-icon">🎉</div>
-      <div class="big-title">저장 완료!</div>
-      <div class="big-sub">배움쪽지 폴더에 저장되었어요</div>
+      <div class="big-title">전송 완료!</div>
+      <div class="big-sub">Drive의 배움쪽지 폴더를 확인해주세요</div>
       <div class="log-box" id="done-log"></div>
       <button class="btn btn-primary" onclick="cancelFlow()" style="max-width:280px;margin-top:4px">📸 다음 학생 촬영</button>
     </div>
   </div>
+
 </div>
 
 <!-- URL 설정 모달 -->
@@ -219,49 +214,41 @@ video{width:100%;height:100%;object-fit:cover;display:block}
   <div class="modal-sheet" onclick="event.stopPropagation()">
     <div class="modal-handle"></div>
     <h2 style="font-size:17px;font-weight:700;color:#1a1a1a;margin-bottom:6px">Google Drive 연동 설정</h2>
-    <p style="font-size:13px;color:#888;margin-bottom:20px;line-height:1.6">Apps Script로 간단하게 연동해요. Google Cloud 설정 없이 가능해요!</p>
-
-    <div style="display:flex;flex-direction:column;gap:20px">
+    <p style="font-size:13px;color:#888;margin-bottom:20px;line-height:1.6">Apps Script 웹앱 URL만 입력하면 끝이에요.</p>
+    <div style="display:flex;flex-direction:column;gap:18px">
       <div class="step">
         <div class="step-num">1</div>
         <div>
-          <p style="font-size:14px;font-weight:600;color:#222;margin-bottom:6px">Apps Script 열기</p>
-          <p style="font-size:13px;color:#555;line-height:1.6">
-            <a href="https://script.google.com" target="_blank" style="color:#1a56db;text-decoration:underline">script.google.com</a> 접속 → <strong>새 프로젝트</strong>
-          </p>
+          <p style="font-size:14px;font-weight:600;color:#222;margin-bottom:5px">Apps Script 열기</p>
+          <p style="font-size:13px;color:#555;line-height:1.6"><a href="https://script.google.com" target="_blank" style="color:#1a56db">script.google.com</a> → 새 프로젝트</p>
         </div>
       </div>
-
       <div class="step">
         <div class="step-num">2</div>
-        <div style="flex:1">
-          <p style="font-size:14px;font-weight:600;color:#222;margin-bottom:6px">코드 붙여넣기</p>
-          <p style="font-size:13px;color:#555;line-height:1.6;margin-bottom:6px">기존 코드 전부 지우고 <strong>drive-server.gs</strong> 파일 내용 붙여넣기</p>
-          <p style="font-size:12px;color:#1a56db;margin-top:4px">← 이 파일은 카메라 앱과 같이 GitHub에 올려뒀어요</p>
+        <div>
+          <p style="font-size:14px;font-weight:600;color:#222;margin-bottom:5px">drive-server.gs 코드 붙여넣기</p>
+          <p style="font-size:13px;color:#555;line-height:1.6">GitHub에 올린 <strong>drive-server.gs</strong> 파일 전체 복사 → 기존 코드 지우고 붙여넣기</p>
         </div>
       </div>
-
       <div class="step">
         <div class="step-num">3</div>
         <div>
-          <p style="font-size:14px;font-weight:600;color:#222;margin-bottom:6px">웹앱으로 배포</p>
+          <p style="font-size:14px;font-weight:600;color:#222;margin-bottom:5px">웹앱으로 배포</p>
           <p style="font-size:13px;color:#555;line-height:1.6">
-            오른쪽 위 <strong>배포 → 새 배포</strong><br>
-            유형: <strong>웹 앱</strong><br>
+            [배포] → [새 배포] → 유형: <strong>웹 앱</strong><br>
             실행 계정: <strong>나(Me)</strong><br>
-            액세스 권한: <strong>모든 사용자(Anyone)</strong><br>
-            → 배포 → URL 복사
+            액세스: <strong>모든 사용자(Anyone)</strong><br>
+            → [배포] → URL 복사
           </p>
+          <p style="font-size:12px;color:#e65100;margin-top:6px;line-height:1.5">⚠️ 코드 수정 후엔 [배포 관리] → 연필 → 새 버전으로 재배포해야 해요</p>
         </div>
       </div>
-
       <div class="step">
         <div class="step-num">4</div>
         <div style="flex:1">
-          <p style="font-size:14px;font-weight:600;color:#222;margin-bottom:8px">URL 입력 후 저장</p>
-          <input type="text" id="cfg-script-url" placeholder="https://script.google.com/macros/s/.../exec"
-                 style="font-size:13px">
-          <button class="btn btn-primary" onclick="saveScriptUrl()" style="margin-top:10px">저장</button>
+          <p style="font-size:14px;font-weight:600;color:#222;margin-bottom:8px">URL 입력</p>
+          <input type="text" id="cfg-url" placeholder="https://script.google.com/macros/s/.../exec" style="font-size:13px">
+          <button class="btn btn-primary" onclick="saveUrl()" style="margin-top:10px">저장</button>
           <button class="btn btn-ghost" onclick="hideUrlModal()" style="margin-top:6px">닫기</button>
         </div>
       </div>
@@ -269,20 +256,19 @@ video{width:100%;height:100%;object-fit:cover;display:block}
   </div>
 </div>
 
+<!-- hidden iframe: form 제출 대상 (CORS 우회) -->
+<iframe id="upload-frame" name="upload-frame" style="display:none"></iframe>
+
 <script>
-var CONFIG = { scriptUrl: '' };
+var CONFIG = { url: '' };
 var GUIDE = { xP:0.075, yP:0.17, wP:0.85, hP:0.65 };
 var BLUR_GOOD = 180, BLUR_OK = 70;
 var S = { date:'', num:'', pc:1, page:1, photos:[], stream:null, preview:null, blur:0 };
 
 (function init() {
-  try {
-    var saved = localStorage.getItem('baeumScriptUrl');
-    if (saved) CONFIG.scriptUrl = saved;
-  } catch(e) {}
-  document.getElementById('cfg-script-url').value = CONFIG.scriptUrl;
-  updateDriveStatus();
-
+  try { var s = localStorage.getItem('baeumUrl'); if (s) CONFIG.url = s; } catch(e) {}
+  document.getElementById('cfg-url').value = CONFIG.url;
+  renderStatus();
   var t = new Date();
   var ds = t.getFullYear()+'-'+String(t.getMonth()+1).padStart(2,'0')+'-'+String(t.getDate()).padStart(2,'0');
   S.date = ds;
@@ -290,36 +276,28 @@ var S = { date:'', num:'', pc:1, page:1, photos:[], stream:null, preview:null, b
   checkReady();
 })();
 
-function updateDriveStatus() {
+function renderStatus() {
   var el = document.getElementById('drive-status');
-  if (CONFIG.scriptUrl) {
-    el.innerHTML = '<div class="url-set-box">✅ <span>Google Drive 연동 완료</span></div>';
-  } else {
-    el.innerHTML = '<div class="url-unset-box">⚠️ Google Drive 미연동 — 아래 설정 버튼을 눌러주세요</div>';
-  }
+  el.innerHTML = CONFIG.url
+    ? '<div class="status-ok">✅ Google Drive 연동 완료</div>'
+    : '<div class="status-no">⚠️ Drive 미연동 — 아래 설정 버튼을 눌러주세요</div>';
 }
 
-function saveScriptUrl() {
-  var url = document.getElementById('cfg-script-url').value.trim();
-  if (!url || !url.startsWith('https://script.google.com')) {
-    alert('올바른 Apps Script URL을 입력해주세요.\nhttps://script.google.com/macros/s/로 시작해야 해요.');
+function saveUrl() {
+  var v = document.getElementById('cfg-url').value.trim();
+  if (!v.startsWith('https://script.google.com')) {
+    alert('올바른 URL을 입력해주세요.\nhttps://script.google.com/macros/s/ 로 시작해야 해요.');
     return;
   }
-  CONFIG.scriptUrl = url;
-  try { localStorage.setItem('baeumScriptUrl', url); } catch(e) {}
+  CONFIG.url = v;
+  try { localStorage.setItem('baeumUrl', v); } catch(e) {}
   hideUrlModal();
-  updateDriveStatus();
+  renderStatus();
   alert('연동 완료! 이제 Drive에 바로 저장돼요 😊');
 }
 
-function showUrlModal() {
-  document.getElementById('cfg-script-url').value = CONFIG.scriptUrl;
-  document.getElementById('url-modal').style.display = 'flex';
-}
-function hideUrlModal(e) {
-  if (!e || e.target === document.getElementById('url-modal'))
-    document.getElementById('url-modal').style.display = 'none';
-}
+function showUrlModal() { document.getElementById('cfg-url').value = CONFIG.url; document.getElementById('url-modal').style.display = 'flex'; }
+function hideUrlModal(e) { if (!e || e.target === document.getElementById('url-modal')) document.getElementById('url-modal').style.display = 'none'; }
 
 function checkReady() {
   var dv = document.getElementById('inp-date').value;
@@ -327,23 +305,15 @@ function checkReady() {
   var ok = dv.length > 0 && nv.length > 0;
   document.getElementById('start-btn').disabled = !ok;
   document.getElementById('ready-hint').style.display = ok ? 'none' : 'block';
-  if (dv) S.date = dv;
-  if (nv) S.num = nv;
+  if (dv) S.date = dv; if (nv) S.num = nv;
 }
-
 function setPc(n) {
   S.pc = n;
-  document.querySelectorAll('.pc-btn').forEach(function(b) {
-    b.classList.toggle('sel', parseInt(b.dataset.n) === n);
-  });
+  document.querySelectorAll('.pc-btn').forEach(function(b) { b.classList.toggle('sel', parseInt(b.dataset.n) === n); });
 }
-
 function show(name) {
-  document.querySelectorAll('.screen').forEach(function(el) {
-    el.classList.toggle('active', el.id === 'screen-'+name);
-  });
+  document.querySelectorAll('.screen').forEach(function(el) { el.classList.toggle('active', el.id === 'screen-'+name); });
 }
-
 function startFlow() {
   S.date = document.getElementById('inp-date').value;
   S.num = document.getElementById('inp-num').value.trim();
@@ -351,26 +321,19 @@ function startFlow() {
   show('camera'); updateCamUI(); startCam();
 }
 function cancelFlow() { stopCam(); S.photos = []; S.page = 1; show('setup'); }
-
 function startCam() {
-  navigator.mediaDevices.getUserMedia({
-    video: { facingMode:{ideal:'environment'}, width:{ideal:1920}, height:{ideal:1080} }
-  }).then(function(stream) {
+  navigator.mediaDevices.getUserMedia({ video: { facingMode:{ideal:'environment'}, width:{ideal:1920}, height:{ideal:1080} } })
+  .then(function(stream) {
     S.stream = stream;
-    var v = document.getElementById('video');
-    v.srcObject = stream; v.play();
+    var v = document.getElementById('video'); v.srcObject = stream; v.play();
     setTimeout(updateGuide, 250);
-  }).catch(function(e) {
-    alert('카메라를 열 수 없어요: '+e.message+'\n브라우저 설정에서 카메라 권한을 허용해주세요.');
-    show('setup');
-  });
+  }).catch(function(e) { alert('카메라를 열 수 없어요: '+e.message); show('setup'); });
 }
 function stopCam() {
   if (S.stream) { S.stream.getTracks().forEach(function(t){t.stop();}); S.stream = null; }
 }
 function updateGuide() {
-  var w = document.getElementById('cam-wrap');
-  var W = w.clientWidth, H = w.clientHeight;
+  var w = document.getElementById('cam-wrap'), W = w.clientWidth, H = w.clientHeight;
   var gx=W*GUIDE.xP, gy=H*GUIDE.yP, gw=W*GUIDE.wP, gh=H*GUIDE.hP;
   function st(id,css){document.getElementById(id).style.cssText=css;}
   st('ov-t','position:absolute;top:0;left:0;right:0;height:'+gy+'px;background:rgba(0,0,0,0.58);z-index:2');
@@ -390,61 +353,33 @@ function updateCamUI() {
   }
 }
 function detectBlur(ctx,w,h) {
-  var data=ctx.getImageData(0,0,w,h).data;
-  var gray=new Float32Array(w*h);
+  var data=ctx.getImageData(0,0,w,h).data, gray=new Float32Array(w*h);
   for(var i=0;i<w*h;i++) gray[i]=0.299*data[i*4]+0.587*data[i*4+1]+0.114*data[i*4+2];
   var sum=0,count=0;
-  for(var y=1;y<h-1;y++) for(var x=1;x<w-1;x++){
-    var lap=4*gray[y*w+x]-gray[(y-1)*w+x]-gray[(y+1)*w+x]-gray[y*w+x-1]-gray[y*w+x+1];
-    sum+=lap*lap; count++;
-  }
+  for(var y=1;y<h-1;y++) for(var x=1;x<w-1;x++){var l=4*gray[y*w+x]-gray[(y-1)*w+x]-gray[(y+1)*w+x]-gray[y*w+x-1]-gray[y*w+x+1];sum+=l*l;count++;}
   return Math.round(sum/count);
 }
 function capturePhoto() {
-  var v = document.getElementById('video');
-  if (!v.videoWidth) return;
-  var vw=v.videoWidth, vh=v.videoHeight;
-  var cw=Math.round(vw*GUIDE.wP), ch=Math.round(vh*GUIDE.hP);
+  var v=document.getElementById('video'); if(!v.videoWidth) return;
+  var vw=v.videoWidth, vh=v.videoHeight, cw=Math.round(vw*GUIDE.wP), ch=Math.round(vh*GUIDE.hP);
   var canvas=document.createElement('canvas'); canvas.width=cw; canvas.height=ch;
   var ctx=canvas.getContext('2d');
   ctx.drawImage(v,vw*GUIDE.xP,vh*GUIDE.yP,cw,ch,0,0,cw,ch);
-  S.blur=detectBlur(ctx,cw,ch);
-  S.preview=canvas.toDataURL('image/jpeg',0.92);
+  S.blur=detectBlur(ctx,cw,ch); S.preview=canvas.toDataURL('image/jpeg',0.85);
   stopCam(); showReview();
 }
 function showReview() {
   show('review');
   document.getElementById('rev-title').textContent='페이지 '+S.page+' 미리보기';
   document.getElementById('preview-img').src=S.preview;
-  var sc=S.blur, good=sc>=BLUR_GOOD, ok=sc>=BLUR_OK;
-  var pct=Math.min(100,Math.round(sc/BLUR_GOOD*100));
+  var sc=S.blur, good=sc>=BLUR_GOOD, ok=sc>=BLUR_OK, pct=Math.min(100,Math.round(sc/BLUR_GOOD*100));
   var card=document.getElementById('quality-card');
-  if(good){
-    card.style.cssText='border-radius:11px;padding:13px 15px;border:1.5px solid #4caf50;background:#f0faf0';
-    document.getElementById('q-icon').textContent='✅';
-    document.getElementById('q-title').textContent='선명하게 찍혔어요!';
-    document.getElementById('q-title').style.color='#2e7d32';
-    document.getElementById('q-desc').textContent='사용하기 버튼을 눌러주세요';
-    document.getElementById('score-fill').style.background='#4caf50';
-  } else if(ok){
-    card.style.cssText='border-radius:11px;padding:13px 15px;border:1.5px solid #ff9800;background:#fffbf0';
-    document.getElementById('q-icon').textContent='⚠️';
-    document.getElementById('q-title').textContent='약간 흐릿해요';
-    document.getElementById('q-title').style.color='#e65100';
-    document.getElementById('q-desc').textContent='괜찮으면 사용, 더 선명하게 찍으려면 다시 찍기';
-    document.getElementById('score-fill').style.background='#ff9800';
-  } else {
-    card.style.cssText='border-radius:11px;padding:13px 15px;border:1.5px solid #f44336;background:#fff5f5';
-    document.getElementById('q-icon').textContent='❌';
-    document.getElementById('q-title').textContent='흔들렸어요 — 다시 찍어주세요';
-    document.getElementById('q-title').style.color='#c62828';
-    document.getElementById('q-desc').textContent='카메라를 고정하고 천천히 찍어보세요';
-    document.getElementById('score-fill').style.background='#f44336';
-  }
+  if(good){card.style.cssText='border-radius:11px;padding:13px 15px;border:1.5px solid #4caf50;background:#f0faf0';document.getElementById('q-icon').textContent='✅';document.getElementById('q-title').textContent='선명하게 찍혔어요!';document.getElementById('q-title').style.color='#2e7d32';document.getElementById('q-desc').textContent='사용하기 버튼을 눌러주세요';document.getElementById('score-fill').style.background='#4caf50';}
+  else if(ok){card.style.cssText='border-radius:11px;padding:13px 15px;border:1.5px solid #ff9800;background:#fffbf0';document.getElementById('q-icon').textContent='⚠️';document.getElementById('q-title').textContent='약간 흐릿해요';document.getElementById('q-title').style.color='#e65100';document.getElementById('q-desc').textContent='괜찮으면 사용, 더 선명하게 찍으려면 다시 찍기';document.getElementById('score-fill').style.background='#ff9800';}
+  else{card.style.cssText='border-radius:11px;padding:13px 15px;border:1.5px solid #f44336;background:#fff5f5';document.getElementById('q-icon').textContent='❌';document.getElementById('q-title').textContent='흔들렸어요 — 다시 찍어주세요';document.getElementById('q-title').style.color='#c62828';document.getElementById('q-desc').textContent='카메라를 고정하고 천천히 찍어보세요';document.getElementById('score-fill').style.background='#f44336';}
   document.getElementById('q-pct').textContent='선명도 '+pct+'%';
   document.getElementById('score-fill').style.width=pct+'%';
-  var kb=document.getElementById('keep-btn');
-  kb.disabled=!ok; kb.textContent=ok?'✅ 사용하기':'🔄 다시 찍어주세요';
+  var kb=document.getElementById('keep-btn'); kb.disabled=!ok; kb.textContent=ok?'✅ 사용하기':'🔄 다시 찍어주세요';
 }
 function goRetake(){show('camera');updateCamUI();startCam();}
 function keepPhoto(){
@@ -464,58 +399,79 @@ function showGallery(){
 }
 function downloadAll(){
   S.photos.forEach(function(p){
-    var a=document.createElement('a');
-    a.href=p.dataUrl; a.download=p.date+'_'+p.num+'b_p'+p.page+'.jpg';
+    var a=document.createElement('a'); a.href=p.dataUrl; a.download=p.date+'_'+p.num+'b_p'+p.page+'.jpg';
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
   });
 }
 function addLog(boxId,text){
-  var box=document.getElementById(boxId);
-  var row=document.createElement('div'); row.className='log-row'; row.textContent=text;
-  box.appendChild(row); return row;
+  var box=document.getElementById(boxId), row=document.createElement('div');
+  row.className='log-row'; row.textContent=text; box.appendChild(row); return row;
 }
 
-/* ── Apps Script로 업로드 ── */
-async function startUpload(){
-  if(!CONFIG.scriptUrl){
-    if(confirm('Drive 연동이 설정되지 않았어요.\n지금 설정하시겠어요?\n(취소 시 다운로드로 저장)')){showUrlModal();}
-    else{downloadAll();}
+/* ── hidden form으로 CORS 완전 우회 ── */
+async function startUpload() {
+  if (!CONFIG.url) {
+    if (confirm('Drive 연동이 설정되지 않았어요.\n지금 설정하시겠어요?\n(취소 시 다운로드로 저장)')) { showUrlModal(); }
+    else { downloadAll(); }
     return;
   }
   show('uploading');
-  document.getElementById('upload-log').innerHTML='';
-  var results=[];
+  document.getElementById('upload-log').innerHTML = '';
+  var results = [];
 
-  for(var i=0;i<S.photos.length;i++){
-    var p=S.photos[i];
-    var fname=p.date+'_'+p.num+'b_p'+p.page+'.jpg';
-    var row=addLog('upload-log','⏳ '+fname+' 전송 중...');
-    try{
-      var b64=p.dataUrl.split(',')[1];
-      var payload=JSON.stringify({image:b64, filename:fname, date:p.date, num:p.num});
-      // XHR 사용 - iOS Safari에서 Apps Script 리다이렉트 호환성 최적
-      await new Promise(function(resolve, reject){
-        var xhr=new XMLHttpRequest();
-        xhr.open('POST', CONFIG.scriptUrl, true);
-        xhr.setRequestHeader('Content-Type','text/plain;charset=utf-8');
-        xhr.timeout=30000;
-        xhr.onload=function(){ resolve(xhr.responseText); };
-        xhr.onerror=function(){ reject(new Error('네트워크 오류')); };
-        xhr.ontimeout=function(){ reject(new Error('시간 초과 (30초)')); };
-        xhr.send(payload);
-      });
-      // Apps Script가 응답을 못 받아도 실제로는 저장됨 (리다이렉트 특성)
-      row.textContent='✅ '+fname+' 저장 완료';
-    } catch(e){
-      row.textContent='❌ '+fname+' 오류: '+e.message;
-    }
+  for (var i = 0; i < S.photos.length; i++) {
+    var p = S.photos[i];
+    var fname = p.date+'_'+p.num+'b_p'+p.page+'.jpg';
+    var row = addLog('upload-log', '⏳ '+fname+' 전송 중...');
+
+    await submitViaForm(p, fname);
+    // form 제출은 응답을 읽을 수 없으므로 전송 완료로 표시
+    // Drive에서 직접 확인 필요
+    row.textContent = '✅ '+fname+' 전송 완료';
     results.push(row.textContent);
+
+    // 장 사이 간격 (서버 처리 시간)
+    if (i < S.photos.length - 1) await sleep(1500);
   }
 
-  document.getElementById('done-log').innerHTML='';
-  results.forEach(function(l){addLog('done-log',l);});
+  document.getElementById('done-log').innerHTML = '';
+  results.forEach(function(l){ addLog('done-log', l); });
   show('done');
 }
+
+function submitViaForm(photo, fname) {
+  return new Promise(function(resolve) {
+    var payload = JSON.stringify({
+      image: photo.dataUrl.split(',')[1],
+      filename: fname,
+      date: photo.date,
+      num: photo.num
+    });
+
+    // 기존 form 제거
+    var old = document.getElementById('hidden-form');
+    if (old) old.parentNode.removeChild(old);
+
+    var form = document.createElement('form');
+    form.id = 'hidden-form';
+    form.method = 'POST';
+    form.action = CONFIG.url;
+    form.target = 'upload-frame'; // hidden iframe으로 제출 → 페이지 이동 없음
+
+    var input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = 'payload';
+    input.value = payload;
+    form.appendChild(input);
+    document.body.appendChild(form);
+    form.submit();
+
+    // Apps Script 처리 시간 대기 (응답 읽기 불가)
+    setTimeout(resolve, 4000);
+  });
+}
+
+function sleep(ms) { return new Promise(function(r){ setTimeout(r, ms); }); }
 </script>
 </body>
 </html>
